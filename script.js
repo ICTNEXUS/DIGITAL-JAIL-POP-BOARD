@@ -1,64 +1,47 @@
-const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR2J7s7yqGIoQaEzo1gtdU6zIbs4ZJDzvzEJkVqY29Q743yoI4Ga2bfZB5IYBtb5y_pKYMfUmi4LR-g/pubhtml";
 let sheetData = [];
+const levelsList = ["Lower Ground", "Upper Ground", "Level 2", "Level 3", "Level 4"];
+const dormList = Array.from({ length: 30 }, (_, i) => `Dorm ${i + 1}`);
 
 Tabletop.init({
-  key: sheetURL,
-  callback: function (data) {
+  key: "https://docs.google.com/spreadsheets/d/e/2PACX-1vR2J7s7yqGIoQaEzo1gtdU6zIbs4ZJDzvzEJkVqY29Q743yoI4Ga2bfZB5IYBtb5y_pKYMfUmi4LR-g/pubhtml",
+  callback: function(data) {
     sheetData = data;
+    console.log("Data loaded:", data);
   },
   simpleSheet: true
 });
 
 function showAnnex(annex) {
-  const levels = ["Lower Ground", "Upper Ground", "Level 2", "Level 3", "Level 4"];
-  const container = document.getElementById("levels");
-  container.innerHTML = "";
-  levels.forEach(level => {
-    const btn = document.createElement("button");
-    btn.textContent = level;
-    btn.onclick = () => showDorms(annex, level);
-    container.appendChild(btn);
-  });
-
+  document.getElementById("levels").innerHTML = "<h3>Select Level:</h3>" +
+    levelsList.map(level => `<button onclick="showLevel('${annex}', '${level}')">${level}</button>`).join("");
   document.getElementById("dorms").innerHTML = "";
   document.getElementById("pdls").innerHTML = "";
 }
 
-function showDorms(annex, level) {
-  const dorms = Array.from({ length: 30 }, (_, i) => `Dorm ${i + 1}`);
-  const container = document.getElementById("dorms");
-  container.innerHTML = "";
-  dorms.forEach(dorm => {
-    const btn = document.createElement("button");
-    btn.textContent = dorm;
-    btn.onclick = () => showPDLs(annex, level, dorm);
-    container.appendChild(btn);
-  });
-
+function showLevel(annex, level) {
+  document.getElementById("dorms").innerHTML = "<h3>Select Dorm:</h3>" +
+    dormList.map(dorm => `<button onclick="showDorm('${annex}', '${level}', '${dorm}')">${dorm}</button>`).join("");
   document.getElementById("pdls").innerHTML = "";
 }
 
-function showPDLs(annex, level, dorm) {
+function showDorm(annex, level, dorm) {
   const filtered = sheetData.filter(row =>
     row.Annex === annex &&
     row.Level === level &&
     row.Dorm === dorm
   );
 
-  const container = document.getElementById("pdls");
-  container.innerHTML = "";
-
   if (filtered.length === 0) {
-    container.textContent = "No PDLs found.";
+    document.getElementById("pdls").innerHTML = `<p>No data for ${annex} → ${level} → ${dorm}</p>`;
     return;
   }
 
-  const list = document.createElement("ul");
-  filtered.forEach(pdl => {
-    const item = document.createElement("li");
-    item.textContent = pdl["PDL Name"];
-    list.appendChild(item);
-  });
+  const dormStatus = filtered[0]["Dorm Status"] || "Unknown";
+  const pdls = filtered.map(row => `<li>${row["PDL Name"] || "Unnamed"}</li>`).join("");
 
-  container.appendChild(list);
+  document.getElementById("pdls").innerHTML = `
+    <h3>${dorm} - Status: <span class="status">${dormStatus}</span></h3>
+    <ul>${pdls}</ul>
+  `;
 }
+
