@@ -4,56 +4,47 @@
   <title>Jail Management System</title>
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; }
-    .annex-btn, .level-btn {
-      padding: 10px 15px;
-      margin: 5px;
-      font-size: 16px;
-      cursor: pointer;
-      border: none;
-      border-radius: 5px;
-      background-color: #4CAF50;
-      color: white;
-    }
+    .btn { padding: 10px 15px; margin: 5px; border: none; border-radius: 5px; cursor: pointer; color: white; }
+    .annex-btn { background-color: #4CAF50; }
     .level-btn { background-color: #2196F3; }
+    .dorm-btn { background-color: #9C27B0; }
     .hidden { display: none; }
   </style>
 </head>
 <body>
 
-  <h1>Jail Management: Annex & Levels</h1>
+<h1>Jail Management System</h1>
 
-  <div id="annex-buttons">
-    <button class="annex-btn" onclick="showLevels('Annex 1')">Annex 1</button>
-    <button class="annex-btn" onclick="showLevels('Annex 2')">Annex 2</button>
-    <button class="annex-btn" onclick="showLevels('Annex 3')">Annex 3</button>
-    <button class="annex-btn" onclick="showLevels('Annex 4')">Annex 4</button>
-  </div>
+<div id="annex-section">
+  <h2>Select Annex</h2>
+  <button class="btn annex-btn" onclick="showLevels('Annex 1')">Annex 1</button>
+  <button class="btn annex-btn" onclick="showLevels('Annex 2')">Annex 2</button>
+  <button class="btn annex-btn" onclick="showLevels('Annex 3')">Annex 3</button>
+  <button class="btn annex-btn" onclick="showLevels('Annex 4')">Annex 4</button>
+</div>
 
-  <div id="level-buttons" class="hidden">
-    <h2 id="selected-annex-title"></h2>
-    <button class="level-btn" onclick="selectLevel('Lower Ground')">Lower Ground</button>
-    <button class="level-btn" onclick="selectLevel('Upper Ground')">Upper Ground</button>
-    <button class="level-btn" onclick="selectLevel('Level 2')">Level 2</button>
-    <button class="level-btn" onclick="selectLevel('Level 3')">Level 3</button>
-    <button class="level-btn" onclick="selectLevel('Level 4')">Level 4</button>
-  </div>
+<div id="level-section" class="hidden">
+  <h2>Select Level (<span id="selected-annex"></span>)</h2>
+  <button class="btn level-btn" onclick="showDorms('Lower Ground')">Lower Ground</button>
+  <button class="btn level-btn" onclick="showDorms('Upper Ground')">Upper Ground</button>
+  <button class="btn level-btn" onclick="showDorms('Level 2')">Level 2</button>
+  <button class="btn level-btn" onclick="showDorms('Level 3')">Level 3</button>
+  <button class="btn level-btn" onclick="showDorms('Level 4')">Level 4</button>
+</div>
 
-  <div id="output" style="margin-top: 20px;"></div>
+<div id="dorm-section" class="hidden">
+  <h2>Select Dorm (<span id="selected-level"></span>)</h2>
+  <div id="dorm-buttons"></div>
+</div>
 
-  <script>
-    let selectedAnnex = "";
+<div id="pdl-section" class="hidden">
+  <h2>PDL List for <span id="selected-dorm"></span></h2>
+  <ul id="pdl-list"></ul>
+</div>
 
-    function showLevels(annex) {
-      selectedAnnex = annex;
-      document.getElementById("level-buttons").classList.remove("hidden");
-      document.getElementById("selected-annex-title").textContent = `${annex} Levels:`;
-      document.getElementById("output").textContent = "";
-    }
-
-    function selectLevel(level) {
-      document.getElementById("output").textContent = `You selected ${level} in ${selectedAnnex}`;
-    }
-  </script>
+<!-- Load Tabletop for Google Sheets -->
+<script src="https://unpkg.com/tabletop@1.5.4/tabletop.js"></script>
+<script src="script.js"></script>
 
 </body>
 </html>
