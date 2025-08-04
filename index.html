@@ -4,27 +4,20 @@
   <meta charset="UTF-8">
   <title>Digital Jail Management</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-    }
+    body { font-family: Arial, sans-serif; padding: 20px; }
     button {
       margin: 5px;
-      padding: 10px 20px;
-      font-size: 16px;
+      padding: 10px 15px;
+      font-size: 14px;
+      cursor: pointer;
     }
-    #levels, #dorms, #pdls {
-      margin-top: 20px;
-    }
-    ul {
-      list-style-type: disc;
-      margin-left: 20px;
-    }
+    #levels, #dorms, #pdls { margin-top: 20px; }
+    .status { font-weight: bold; margin-bottom: 10px; }
   </style>
 </head>
 <body>
 
-  <h1>Digital Jail Management System</h1>
+  <h2>📋 Jail Management System</h2>
 
   <div id="annex-buttons">
     <button onclick="showAnnex('Annex 1')">Annex 1</button>
@@ -37,10 +30,7 @@
   <div id="dorms"></div>
   <div id="pdls"></div>
 
-  <!-- Tabletop for Google Sheet -->
   <script src="https://unpkg.com/tabletop@1.5.4/tabletop.js"></script>
-
-  <!-- Your custom script -->
   <script src="script.js"></script>
 
 </body>
