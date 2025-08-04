@@ -7,6 +7,32 @@ const levelContainer = document.getElementById("level-buttons");
 const dormContainer = document.getElementById("dorm-buttons");
 const pdlList = document.getElementById("pdl-list");
 
+// Google Sheets CSV URL
+const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR2J7s7yqGIoQaEzo1gtdU6zIbs4ZJDzvzEJkVqY29Q743yoI4Ga2bfZB5IYBtb5y_pKYMfUmi4LR-g/pub?output=csv';
+
+let sheetData = [];
+
+// Fetch the CSV data on page load
+fetch(SHEET_URL)
+  .then(response => response.text())
+  .then(csv => {
+    sheetData = parseCSV(csv);
+  });
+
+// Simple CSV parser
+function parseCSV(csv) {
+  const lines = csv.split('\n');
+  const headers = lines[0].split(',');
+  return lines.slice(1).map(line => {
+    const values = line.split(',');
+    const row = {};
+    headers.forEach((header, i) => {
+      row[header.trim()] = values[i]?.trim();
+    });
+    return row;
+  });
+}
+
 // Show Annex Buttons
 annexes.forEach(annex => {
   const btn = document.createElement("button");
@@ -39,6 +65,20 @@ function showDorms(annex, level) {
 }
 
 function showPDL(annex, level, dorm) {
-  pdlList.innerHTML = `<p>Showing PDLs for <strong>${annex} → ${level} → ${dorm}</strong></p>
-                       <p>(Google Sheets integration goes here)</p>`;
+  const results = sheetData.filter(row =>
+    row.Annex === annex &&
+    row.Level === level &&
+    row.Dorm === dorm &&
+    row.Name
+  );
+
+  if (results.length === 0) {
+    pdlList.innerHTML = `<p>No data for <strong>${annex} → ${level} → ${dorm}</strong></p>`;
+  } else {
+    const names = results.map(r => `<li>${r.Name}</li>`).join('');
+    pdlList.innerHTML = `
+      <h3>PDLs in ${annex} → ${level} → ${dorm}</h3>
+      <ul>${names}</ul>
+    `;
+  }
 }
