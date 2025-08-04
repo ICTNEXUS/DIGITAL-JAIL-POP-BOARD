@@ -1,50 +1,47 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Jail Management System</title>
+  <meta charset="UTF-8">
+  <title>Digital Jail Management</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    .btn { padding: 10px 15px; margin: 5px; border: none; border-radius: 5px; cursor: pointer; color: white; }
-    .annex-btn { background-color: #4CAF50; }
-    .level-btn { background-color: #2196F3; }
-    .dorm-btn { background-color: #9C27B0; }
-    .hidden { display: none; }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    button {
+      margin: 5px;
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+    #levels, #dorms, #pdls {
+      margin-top: 20px;
+    }
+    ul {
+      list-style-type: disc;
+      margin-left: 20px;
+    }
   </style>
 </head>
 <body>
 
-<h1>Jail Management System</h1>
+  <h1>Digital Jail Management System</h1>
 
-<div id="annex-section">
-  <h2>Select Annex</h2>
-  <button class="btn annex-btn" onclick="showLevels('Annex 1')">Annex 1</button>
-  <button class="btn annex-btn" onclick="showLevels('Annex 2')">Annex 2</button>
-  <button class="btn annex-btn" onclick="showLevels('Annex 3')">Annex 3</button>
-  <button class="btn annex-btn" onclick="showLevels('Annex 4')">Annex 4</button>
-</div>
+  <div id="annex-buttons">
+    <button onclick="showAnnex('Annex 1')">Annex 1</button>
+    <button onclick="showAnnex('Annex 2')">Annex 2</button>
+    <button onclick="showAnnex('Annex 3')">Annex 3</button>
+    <button onclick="showAnnex('Annex 4')">Annex 4</button>
+  </div>
 
-<div id="level-section" class="hidden">
-  <h2>Select Level (<span id="selected-annex"></span>)</h2>
-  <button class="btn level-btn" onclick="showDorms('Lower Ground')">Lower Ground</button>
-  <button class="btn level-btn" onclick="showDorms('Upper Ground')">Upper Ground</button>
-  <button class="btn level-btn" onclick="showDorms('Level 2')">Level 2</button>
-  <button class="btn level-btn" onclick="showDorms('Level 3')">Level 3</button>
-  <button class="btn level-btn" onclick="showDorms('Level 4')">Level 4</button>
-</div>
+  <div id="levels"></div>
+  <div id="dorms"></div>
+  <div id="pdls"></div>
 
-<div id="dorm-section" class="hidden">
-  <h2>Select Dorm (<span id="selected-level"></span>)</h2>
-  <div id="dorm-buttons"></div>
-</div>
+  <!-- Tabletop for Google Sheet -->
+  <script src="https://unpkg.com/tabletop@1.5.4/tabletop.js"></script>
 
-<div id="pdl-section" class="hidden">
-  <h2>PDL List for <span id="selected-dorm"></span></h2>
-  <ul id="pdl-list"></ul>
-</div>
-
-<!-- Load Tabletop for Google Sheets -->
-<script src="https://unpkg.com/tabletop@1.5.4/tabletop.js"></script>
-<script src="script.js"></script>
+  <!-- Your custom script -->
+  <script src="script.js"></script>
 
 </body>
 </html>
