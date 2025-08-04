@@ -1,17 +1,59 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
   <title>Jail Management System</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .annex-btn, .level-btn {
+      padding: 10px 15px;
+      margin: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      background-color: #4CAF50;
+      color: white;
+    }
+    .level-btn { background-color: #2196F3; }
+    .hidden { display: none; }
+  </style>
 </head>
 <body>
-  <h1>🛡️ Jail Management System</h1>
-  
-  <div id="annex-buttons"></div>
-  <div id="dorms-container"></div>
-  <div id="pdls-container"></div>
 
-  <script src="script.js"></script>
+  <h1>Jail Management: Annex & Levels</h1>
+
+  <div id="annex-buttons">
+    <button class="annex-btn" onclick="showLevels('Annex 1')">Annex 1</button>
+    <button class="annex-btn" onclick="showLevels('Annex 2')">Annex 2</button>
+    <button class="annex-btn" onclick="showLevels('Annex 3')">Annex 3</button>
+    <button class="annex-btn" onclick="showLevels('Annex 4')">Annex 4</button>
+  </div>
+
+  <div id="level-buttons" class="hidden">
+    <h2 id="selected-annex-title"></h2>
+    <button class="level-btn" onclick="selectLevel('Lower Ground')">Lower Ground</button>
+    <button class="level-btn" onclick="selectLevel('Upper Ground')">Upper Ground</button>
+    <button class="level-btn" onclick="selectLevel('Level 2')">Level 2</button>
+    <button class="level-btn" onclick="selectLevel('Level 3')">Level 3</button>
+    <button class="level-btn" onclick="selectLevel('Level 4')">Level 4</button>
+  </div>
+
+  <div id="output" style="margin-top: 20px;"></div>
+
+  <script>
+    let selectedAnnex = "";
+
+    function showLevels(annex) {
+      selectedAnnex = annex;
+      document.getElementById("level-buttons").classList.remove("hidden");
+      document.getElementById("selected-annex-title").textContent = `${annex} Levels:`;
+      document.getElementById("output").textContent = "";
+    }
+
+    function selectLevel(level) {
+      document.getElementById("output").textContent = `You selected ${level} in ${selectedAnnex}`;
+    }
+  </script>
+
 </body>
 </html>
