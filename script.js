@@ -71,3 +71,9 @@ document.addEventListener("DOMContentLoaded", function () {
   if (annexButtons) {
     ["Annex 1", "Annex 2", "Annex 3", "Annex 4"].forEach(annex => {
       const btn = document.createElement("button");
+      btn.textContent = annex;
+      btn.onclick = () => showLevels(annex);
+      annexButtons.appendChild(btn);
+    });
+  }
+});
