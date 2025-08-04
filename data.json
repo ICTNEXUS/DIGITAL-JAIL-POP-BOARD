@@ -1,0 +1,16 @@
+{
+  "Annex 1": {
+    "Dorm A1": ["Juan Dela Cruz", "Pedro Santos"],
+    "Dorm A2": ["Maria Reyes"]
+  },
+  "Annex 2": {
+    "Dorm B1": ["Carlos Gomez"],
+    "Dorm B2": ["Anna Cruz", "Marco Lim"]
+  },
+  "Annex 3": {
+    "Dorm C1": ["Isabel Moreno"]
+  },
+  "Annex 4": {
+    "Dorm D1": ["Luis Pineda", "Erika Tan"]
+  }
+}
