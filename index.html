@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Jail Management System</title>
 <style>
-  /* Reset & base */
   body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: #f5f7fa;
@@ -17,8 +16,6 @@
     text-align: center;
     color: #2c3e50;
   }
-
-  /* Containers */
   #annex-buttons, #level-buttons, #dorm-buttons {
     display: flex;
     flex-wrap: wrap;
@@ -26,8 +23,6 @@
     margin-bottom: 25px;
     justify-content: center;
   }
-
-  /* Buttons */
   button {
     background-color: #3498db;
     border: none;
@@ -42,8 +37,6 @@
   button:hover {
     background-color: #2980b9;
   }
-
-  /* Different colors per group */
   #annex-buttons button {
     background-color: #2980b9;
   }
@@ -62,8 +55,6 @@
   #dorm-buttons button:hover {
     background-color: #b35917;
   }
-
-  /* PDL list */
   #pdl-list {
     background-color: white;
     max-width: 480px;
@@ -84,8 +75,6 @@
     font-style: italic;
     color: #999;
   }
-
-  /* Responsive */
   @media (max-width: 600px) {
     #annex-buttons, #level-buttons, #dorm-buttons {
       justify-content: flex-start;
@@ -96,6 +85,9 @@
     }
   }
 </style>
+
+<!-- PapaParse CDN -->
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 </head>
 <body>
 
@@ -121,28 +113,19 @@
 
   let sheetData = [];
 
-  // Fetch the CSV data on page load
+  // Fetch and parse CSV with PapaParse
   fetch(SHEET_URL)
     .then(response => response.text())
-    .then(csv => {
-      sheetData = parseCSV(csv);
-    }).catch(err => {
+    .then(csvText => {
+      const results = Papa.parse(csvText, {
+        header: true,
+        skipEmptyLines: true,
+      });
+      sheetData = results.data;
+    })
+    .catch(err => {
       pdlList.innerHTML = `<p style="color:red;">Failed to load data. Please try again later.</p>`;
     });
-
-  // Simple CSV parser
-  function parseCSV(csv) {
-    const lines = csv.trim().split('\n');
-    const headers = lines[0].split(',');
-    return lines.slice(1).map(line => {
-      const values = line.split(',');
-      const row = {};
-      headers.forEach((header, i) => {
-        row[header.trim()] = values[i]?.trim();
-      });
-      return row;
-    });
-  }
 
   // Show Annex Buttons
   function renderAnnexButtons() {
