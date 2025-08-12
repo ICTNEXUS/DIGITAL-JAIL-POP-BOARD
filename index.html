@@ -16,6 +16,17 @@
     text-align: center;
     color: #2c3e50;
   }
+  #logo-container {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-bottom: 20px;
+    align-items: center;
+  }
+  #logo-container img {
+    height: 60px;
+    user-select: none;
+  }
   #top-buttons, #annex-buttons, #level-buttons, #dorm-buttons {
     display: flex;
     flex-wrap: wrap;
@@ -86,6 +97,13 @@
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 </head>
 <body>
+
+<!-- Logos at top -->
+<div id="logo-container">
+  <img src="images/QCJMD.svg" alt="QCJMD Logo" />
+  <img src="images/BJMP.svg" alt="BJMP Logo" />
+  <img src="images/BAGONG_PILIPINAS.svg" alt="Bagong Pilipinas Logo" />
+</div>
 
 <h1>Jail Management System</h1>
 
