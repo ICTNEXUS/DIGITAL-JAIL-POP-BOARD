@@ -1,38 +1,106 @@
-<<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html>
+<html>
 <head>
   <meta charset="UTF-8">
-  <title>Jail Management System</title>
+  <title>Digital Jail Pop Board</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-    }
-    h1 {
-      font-size: 28px;
-      margin-bottom: 20px;
-    }
-    button {
-      margin: 5px;
-      padding: 10px 15px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    #level-buttons, #dorm-buttons, #pdl-list {
-      margin-top: 20px;
-    }
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    button { margin: 5px; padding: 10px 15px; cursor: pointer; }
+    #annex-buttons, #level-buttons, #dorm-buttons { margin-bottom: 20px; }
+    .pdl-name { padding: 5px; border-bottom: 1px solid #ddd; }
   </style>
 </head>
 <body>
 
-  <h1>Jail Management System</h1>
+<h1>Digital Jail Population Board</h1>
 
-  <div id="annex-buttons"></div>
-  <div id="level-buttons"></div>
-  <div id="dorm-buttons"></div>
-  <div id="pdl-list"></div>
+<div id="annex-buttons"></div>
+<div id="level-buttons"></div>
+<div id="dorm-buttons"></div>
+<div id="pdl-list"></div>
 
-  <script src="script.js" defer></script>
+<script>
+  // Your published Google Sheet JSON URL (replace with yours)
+  const googleSheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR2J7s7yqGIoQaEzo1gtdU6zIbs4ZJDzvzEJkVqY29Q743yoI4Ga2bfZB5IYBtb5y_pKYMfUmi4LR-g/pub?output=csv";
+
+  let pdlData = [];
+  let selectedAnnex = "";
+  let selectedLevel = "";
+  let selectedDorm = "";
+
+  // Load CSV from Google Sheets
+  fetch(googleSheetUrl)
+    .then(res => res.text())
+    .then(csvText => {
+      const rows = csvText.split("\n").slice(1); // Skip header
+      pdlData = rows.map(row => {
+        const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/); // Split only on commas not inside quotes
+        return {
+          annex: cols[0]?.trim(),
+          level: cols[1]?.trim(),
+          dorm: cols[2]?.trim(),
+          name: cols[3]?.trim() // Take full Column D (with commas intact)
+        };
+      });
+      createAnnexButtons();
+    })
+    .catch(err => console.error("Error loading data:", err));
+
+  function createAnnexButtons() {
+    const annexes = [...new Set(pdlData.map(d => d.annex).filter(Boolean))];
+    const container = document.getElementById("annex-buttons");
+    container.innerHTML = "";
+    annexes.forEach(annex => {
+      const btn = document.createElement("button");
+      btn.textContent = annex;
+      btn.onclick = () => { selectedAnnex = annex; createLevelButtons(); };
+      container.appendChild(btn);
+    });
+  }
+
+  function createLevelButtons() {
+    const levels = [...new Set(pdlData.filter(d => d.annex === selectedAnnex).map(d => d.level).filter(Boolean))];
+    const container = document.getElementById("level-buttons");
+    container.innerHTML = "";
+    document.getElementById("dorm-buttons").innerHTML = "";
+    document.getElementById("pdl-list").innerHTML = "";
+    levels.forEach(level => {
+      const btn = document.createElement("button");
+      btn.textContent = level;
+      btn.onclick = () => { selectedLevel = level; createDormButtons(); };
+      container.appendChild(btn);
+    });
+  }
+
+  function createDormButtons() {
+    const dorms = [...new Set(pdlData.filter(d => d.annex === selectedAnnex && d.level === selectedLevel).map(d => d.dorm).filter(Boolean))];
+    const container = document.getElementById("dorm-buttons");
+    container.innerHTML = "";
+    document.getElementById("pdl-list").innerHTML = "";
+    dorms.forEach(dorm => {
+      const btn = document.createElement("button");
+      btn.textContent = dorm;
+      btn.onclick = () => { selectedDorm = dorm; showPDLList(); };
+      container.appendChild(btn);
+    });
+  }
+
+  function showPDLList() {
+    const list = document.getElementById("pdl-list");
+    list.innerHTML = "";
+    const pdls = pdlData.filter(d => d.annex === selectedAnnex && d.level === selectedLevel && d.dorm === selectedDorm);
+    if (pdls.length === 0) {
+      list.textContent = "No data for " + selectedAnnex + " → " + selectedLevel + " → " + selectedDorm;
+      return;
+    }
+    pdls.forEach(pdl => {
+      const div = document.createElement("div");
+      div.className = "pdl-name";
+      div.textContent = pdl.name;
+      list.appendChild(div);
+    });
+  }
+</script>
+
 </body>
 </html>
-
