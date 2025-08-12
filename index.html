@@ -1,18 +1,105 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Digital Jail Pop Board</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    button { margin: 5px; padding: 10px 15px; cursor: pointer; }
-    #annex-buttons, #level-buttons, #dorm-buttons { margin-bottom: 20px; }
-    .pdl-name { padding: 5px; border-bottom: 1px solid #ddd; }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Jail Management System</title>
+<style>
+  /* Reset & base */
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f5f7fa;
+    margin: 20px;
+    color: #333;
+  }
+  h1 {
+    margin-bottom: 20px;
+    text-align: center;
+    color: #2c3e50;
+  }
+
+  /* Containers */
+  #annex-buttons, #level-buttons, #dorm-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 25px;
+    justify-content: center;
+  }
+
+  /* Buttons */
+  button {
+    background-color: #3498db;
+    border: none;
+    color: white;
+    padding: 12px 22px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  button:hover {
+    background-color: #2980b9;
+  }
+
+  /* Different colors per group */
+  #annex-buttons button {
+    background-color: #2980b9;
+  }
+  #annex-buttons button:hover {
+    background-color: #1c5980;
+  }
+  #level-buttons button {
+    background-color: #27ae60;
+  }
+  #level-buttons button:hover {
+    background-color: #1e8449;
+  }
+  #dorm-buttons button {
+    background-color: #e67e22;
+  }
+  #dorm-buttons button:hover {
+    background-color: #b35917;
+  }
+
+  /* PDL list */
+  #pdl-list {
+    background-color: white;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 20px 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  }
+  #pdl-list h3 {
+    margin-top: 0;
+    color: #34495e;
+  }
+  #pdl-list ul {
+    list-style-type: disc;
+    padding-left: 20px;
+  }
+  #pdl-list p {
+    font-style: italic;
+    color: #999;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    #annex-buttons, #level-buttons, #dorm-buttons {
+      justify-content: flex-start;
+    }
+    button {
+      flex: 1 1 calc(50% - 12px);
+      min-width: 120px;
+    }
+  }
+</style>
 </head>
 <body>
 
-<h1>Digital Jail Population Board</h1>
+<h1>Jail Management System</h1>
 
 <div id="annex-buttons"></div>
 <div id="level-buttons"></div>
@@ -20,86 +107,98 @@
 <div id="pdl-list"></div>
 
 <script>
-  // Your published Google Sheet JSON URL (replace with yours)
-  const googleSheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR2J7s7yqGIoQaEzo1gtdU6zIbs4ZJDzvzEJkVqY29Q743yoI4Ga2bfZB5IYBtb5y_pKYMfUmi4LR-g/pub?output=csv";
+  const annexes = ["Annex 1", "Annex 2", "Annex 3", "Annex 4"];
+  const levels = ["Lower Ground", "Upper Ground", "Level 2", "Level 3", "Level 4"];
+  const dorms = Array.from({ length: 30 }, (_, i) => `Dorm ${i + 1}`);
 
-  let pdlData = [];
-  let selectedAnnex = "";
-  let selectedLevel = "";
-  let selectedDorm = "";
+  const annexContainer = document.getElementById("annex-buttons");
+  const levelContainer = document.getElementById("level-buttons");
+  const dormContainer = document.getElementById("dorm-buttons");
+  const pdlList = document.getElementById("pdl-list");
 
-  // Load CSV from Google Sheets
-  fetch(googleSheetUrl)
-    .then(res => res.text())
-    .then(csvText => {
-      const rows = csvText.split("\n").slice(1); // Skip header
-      pdlData = rows.map(row => {
-        const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/); // Split only on commas not inside quotes
-        return {
-          annex: cols[0]?.trim(),
-          level: cols[1]?.trim(),
-          dorm: cols[2]?.trim(),
-          name: cols[3]?.trim() // Take full Column D (with commas intact)
-        };
+  // Google Sheets CSV URL
+  const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR2J7s7yqGIoQaEzo1gtdU6zIbs4ZJDzvzEJkVqY29Q743yoI4Ga2bfZB5IYBtb5y_pKYMfUmi4LR-g/pub?output=csv';
+
+  let sheetData = [];
+
+  // Fetch the CSV data on page load
+  fetch(SHEET_URL)
+    .then(response => response.text())
+    .then(csv => {
+      sheetData = parseCSV(csv);
+    }).catch(err => {
+      pdlList.innerHTML = `<p style="color:red;">Failed to load data. Please try again later.</p>`;
+    });
+
+  // Simple CSV parser
+  function parseCSV(csv) {
+    const lines = csv.trim().split('\n');
+    const headers = lines[0].split(',');
+    return lines.slice(1).map(line => {
+      const values = line.split(',');
+      const row = {};
+      headers.forEach((header, i) => {
+        row[header.trim()] = values[i]?.trim();
       });
-      createAnnexButtons();
-    })
-    .catch(err => console.error("Error loading data:", err));
+      return row;
+    });
+  }
 
-  function createAnnexButtons() {
-    const annexes = [...new Set(pdlData.map(d => d.annex).filter(Boolean))];
-    const container = document.getElementById("annex-buttons");
-    container.innerHTML = "";
+  // Show Annex Buttons
+  function renderAnnexButtons() {
+    annexContainer.innerHTML = "";
     annexes.forEach(annex => {
       const btn = document.createElement("button");
       btn.textContent = annex;
-      btn.onclick = () => { selectedAnnex = annex; createLevelButtons(); };
-      container.appendChild(btn);
+      btn.onclick = () => showLevels(annex);
+      annexContainer.appendChild(btn);
     });
   }
 
-  function createLevelButtons() {
-    const levels = [...new Set(pdlData.filter(d => d.annex === selectedAnnex).map(d => d.level).filter(Boolean))];
-    const container = document.getElementById("level-buttons");
-    container.innerHTML = "";
-    document.getElementById("dorm-buttons").innerHTML = "";
-    document.getElementById("pdl-list").innerHTML = "";
+  function showLevels(annex) {
+    levelContainer.innerHTML = "";
+    dormContainer.innerHTML = "";
+    pdlList.innerHTML = "";
     levels.forEach(level => {
       const btn = document.createElement("button");
       btn.textContent = level;
-      btn.onclick = () => { selectedLevel = level; createDormButtons(); };
-      container.appendChild(btn);
+      btn.onclick = () => showDorms(annex, level);
+      levelContainer.appendChild(btn);
     });
   }
 
-  function createDormButtons() {
-    const dorms = [...new Set(pdlData.filter(d => d.annex === selectedAnnex && d.level === selectedLevel).map(d => d.dorm).filter(Boolean))];
-    const container = document.getElementById("dorm-buttons");
-    container.innerHTML = "";
-    document.getElementById("pdl-list").innerHTML = "";
+  function showDorms(annex, level) {
+    dormContainer.innerHTML = "";
+    pdlList.innerHTML = "";
     dorms.forEach(dorm => {
       const btn = document.createElement("button");
       btn.textContent = dorm;
-      btn.onclick = () => { selectedDorm = dorm; showPDLList(); };
-      container.appendChild(btn);
+      btn.onclick = () => showPDL(annex, level, dorm);
+      dormContainer.appendChild(btn);
     });
   }
 
-  function showPDLList() {
-    const list = document.getElementById("pdl-list");
-    list.innerHTML = "";
-    const pdls = pdlData.filter(d => d.annex === selectedAnnex && d.level === selectedLevel && d.dorm === selectedDorm);
-    if (pdls.length === 0) {
-      list.textContent = "No data for " + selectedAnnex + " → " + selectedLevel + " → " + selectedDorm;
-      return;
+  function showPDL(annex, level, dorm) {
+    const results = sheetData.filter(row =>
+      row.Annex?.trim().toLowerCase() === annex.trim().toLowerCase() &&
+      row.Level?.trim().toLowerCase() === level.trim().toLowerCase() &&
+      row.Dorm?.trim().toLowerCase() === dorm.trim().toLowerCase() &&
+      row.Name
+    );
+
+    if (results.length === 0) {
+      pdlList.innerHTML = `<p>No data for <strong>${annex} → ${level} → ${dorm}</strong></p>`;
+    } else {
+      const names = results.map(r => `<li>${r.Name}</li>`).join('');
+      pdlList.innerHTML = `
+        <h3>PDLs in ${annex} → ${level} → ${dorm}</h3>
+        <ul>${names}</ul>
+      `;
     }
-    pdls.forEach(pdl => {
-      const div = document.createElement("div");
-      div.className = "pdl-name";
-      div.textContent = pdl.name;
-      list.appendChild(div);
-    });
   }
+
+  // Initial render
+  renderAnnexButtons();
 </script>
 
 </body>
