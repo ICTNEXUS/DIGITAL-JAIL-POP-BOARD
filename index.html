@@ -1,249 +1,185 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Jail Management System with Jail Pop</title>
-<style>
-  body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #f5f7fa;
-    margin: 20px;
-    color: #333;
-  }
-  h1 {
-    margin-bottom: 20px;
-    text-align: center;
-    color: #2c3e50;
-  }
-  #top-buttons, #annex-buttons, #level-buttons, #dorm-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-bottom: 25px;
-    justify-content: center;
-  }
-  button {
-    background-color: #3498db;
-    border: none;
-    color: white;
-    padding: 12px 22px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background-color 0.3s ease;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  }
-  button:hover {
-    background-color: #2980b9;
-  }
-  #annex-buttons button { background-color: #2980b9; }
-  #annex-buttons button:hover { background-color: #1c5980; }
-  #level-buttons button { background-color: #27ae60; }
-  #level-buttons button:hover { background-color: #1e8449; }
-  #dorm-buttons button { background-color: #e67e22; }
-  #dorm-buttons button:hover { background-color: #b35917; }
-  #jailpop-button {
-    background-color: #c0392b;
-    margin-bottom: 20px;
-  }
-  #jailpop-button:hover {
-    background-color: #82241f;
-  }
-  #pdl-list, #jailpop-info {
-    background-color: white;
-    max-width: 480px;
-    margin: 0 auto 30px auto;
-    padding: 20px 25px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    text-align: center;
-  }
-  #pdl-list h3, #jailpop-info h3 {
-    margin-top: 0;
-    color: #34495e;
-  }
-  #pdl-list ul {
-    list-style-type: disc;
-    padding-left: 20px;
-    text-align: left;
-  }
-  #pdl-list p, #jailpop-info p {
-    font-style: italic;
-    color: #999;
-  }
-  @media (max-width: 600px) {
-    #annex-buttons, #level-buttons, #dorm-buttons, #top-buttons {
-      justify-content: flex-start;
+  <meta charset="UTF-8" />
+  <title>Jail Management System</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .logo-container {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 10px;
+    }
+    .logo-container img {
+      height: 80px;
     }
     button {
-      flex: 1 1 calc(50% - 12px);
-      min-width: 120px;
+      margin: 5px;
+      padding: 8px 12px;
+      cursor: pointer;
     }
-  }
-</style>
-
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    #pdl-list, #jailpop-info {
+      margin-top: 20px;
+    }
+  </style>
 </head>
 <body>
 
-<h1>Jail Management System</h1>
+<header>
+  <div class="logo-container">
+    <img src="images/bagong_pilipinas.svg" alt="Bagong Pilipinas Logo" />
+    <img src="images/BJMP.svg" alt="BJMP Logo" />
+    <img src="images/QCJMD.svg" alt="QCJMD Logo" />
+  </div>
+  <h1>Jail Management System</h1>
+</header>
 
-<div id="top-buttons">
-  <button id="jailpop-button">JAIL POP</button>
+<div>
+  <button id="jailpop-button" style="background-color: red; color: white; font-weight: bold;">
+    JAIL POP
+  </button>
 </div>
 
 <div id="annex-buttons"></div>
 <div id="level-buttons"></div>
 <div id="dorm-buttons"></div>
-
 <div id="pdl-list"></div>
 <div id="jailpop-info"></div>
 
 <script>
-  const annexes = ["Annex 1", "Annex 2", "Annex 3", "Annex 4"];
-  const levels = ["Lower Ground", "Upper Ground", "Level 2", "Level 3", "Level 4"];
-  const dorms = Array.from({ length: 30 }, (_, i) => `Dorm ${i + 1}`);
+const annexes = ["Annex 1", "Annex 2", "Annex 3", "Annex 4"];
+const levels = ["Lower Ground", "Upper Ground", "Level 2", "Level 3", "Level 4"];
+const dorms = Array.from({ length: 30 }, (_, i) => `Dorm ${i + 1}`);
 
-  const annexContainer = document.getElementById("annex-buttons");
-  const levelContainer = document.getElementById("level-buttons");
-  const dormContainer = document.getElementById("dorm-buttons");
-  const pdlList = document.getElementById("pdl-list");
-  const jailpopInfo = document.getElementById("jailpop-info");
+const annexContainer = document.getElementById("annex-buttons");
+const levelContainer = document.getElementById("level-buttons");
+const dormContainer = document.getElementById("dorm-buttons");
+const pdlList = document.getElementById("pdl-list");
+const jailpopButton = document.getElementById("jailpop-button");
+const jailpopInfo = document.getElementById("jailpop-info");
 
-  const jailpopButton = document.getElementById("jailpop-button");
+// Google Sheets CSV URL
+const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR2J7s7yqGIoQaEzo1gtdU6zIbs4ZJDzvzEJkVqY29Q743yoI4Ga2bfZB5IYBtb5y_pKYMfUmi4LR-g/pub?output=csv';
 
-  // Google Sheets CSV URL
-  const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR2J7s7yqGIoQaEzo1gtdU6zIbs4ZJDzvzEJkVqY29Q743yoI4Ga2bfZB5IYBtb5y_pKYMfUmi4LR-g/pub?output=csv';
+let sheetData = [];
 
-  let sheetData = [];
-  let selectedAnnex = null;
-  let selectedLevel = null;
-  let selectedDorm = null;
+// Fetch the CSV data on page load
+fetch(SHEET_URL)
+  .then(response => response.text())
+  .then(csv => {
+    sheetData = parseCSV(csv);
+  });
 
-  // Fetch and parse CSV with PapaParse
-  fetch(SHEET_URL)
-    .then(response => response.text())
-    .then(csvText => {
-      const results = Papa.parse(csvText, {
-        header: true,
-        skipEmptyLines: true,
-      });
-      sheetData = results.data;
-    })
-    .catch(err => {
-      pdlList.innerHTML = `<p style="color:red;">Failed to load data. Please try again later.</p>`;
+// Simple CSV parser
+function parseCSV(csv) {
+  const lines = csv.trim().split('\n');
+  const headers = lines[0].split(',');
+  return lines.slice(1).map(line => {
+    const values = line.split(',');
+    const row = {};
+    headers.forEach((header, i) => {
+      row[header.trim()] = values[i]?.trim();
     });
+    return row;
+  });
+}
 
-  // Render annex buttons (used both for normal flow and jail pop)
-  function renderAnnexButtons() {
-    annexContainer.innerHTML = "";
-    levelContainer.innerHTML = "";
-    dormContainer.innerHTML = "";
-    pdlList.innerHTML = "";
-    jailpopInfo.innerHTML = "";
-    annexes.forEach(annex => {
-      const btn = document.createElement("button");
-      btn.textContent = annex;
-      btn.onclick = () => {
-        selectedAnnex = annex;
-        selectedLevel = null;
-        selectedDorm = null;
-        showLevels(annex);
-      };
-      annexContainer.appendChild(btn);
-    });
-  }
+function renderAnnexButtons() {
+  annexContainer.innerHTML = "";
+  levelContainer.innerHTML = "";
+  dormContainer.innerHTML = "";
+  pdlList.innerHTML = "";
+  jailpopInfo.innerHTML = "";
 
-  function showLevels(annex) {
-    levelContainer.innerHTML = "";
-    dormContainer.innerHTML = "";
-    pdlList.innerHTML = "";
-    jailpopInfo.innerHTML = "";
-    levels.forEach(level => {
-      const btn = document.createElement("button");
-      btn.textContent = level;
-      btn.onclick = () => {
-        selectedLevel = level;
-        selectedDorm = null;
-        showDorms(annex, level);
-      };
-      levelContainer.appendChild(btn);
-    });
-  }
+  annexes.forEach(annex => {
+    const btn = document.createElement("button");
+    btn.textContent = annex;
+    btn.onclick = () => showLevels(annex);
+    annexContainer.appendChild(btn);
+  });
+}
 
-  function showDorms(annex, level) {
-    dormContainer.innerHTML = "";
-    pdlList.innerHTML = "";
-    jailpopInfo.innerHTML = "";
-    dorms.forEach(dorm => {
-      const btn = document.createElement("button");
-      btn.textContent = dorm;
-      btn.onclick = () => {
-        selectedDorm = dorm;
-        showPDL(annex, level, dorm);
-      };
-      dormContainer.appendChild(btn);
-    });
-  }
+function showLevels(annex) {
+  levelContainer.innerHTML = "";
+  dormContainer.innerHTML = "";
+  pdlList.innerHTML = "";
+  jailpopInfo.innerHTML = "";
+  levels.forEach(level => {
+    const btn = document.createElement("button");
+    btn.textContent = level;
+    btn.onclick = () => showDorms(annex, level);
+    levelContainer.appendChild(btn);
+  });
+}
 
-  function showPDL(annex, level, dorm) {
-    jailpopInfo.innerHTML = "";
-    const results = sheetData.filter(row =>
-      row.Annex?.trim().toLowerCase() === annex.trim().toLowerCase() &&
-      row.Level?.trim().toLowerCase() === level.trim().toLowerCase() &&
-      row.Dorm?.trim().toLowerCase() === dorm.trim().toLowerCase() &&
-      row.Name
-    );
+function showDorms(annex, level) {
+  dormContainer.innerHTML = "";
+  pdlList.innerHTML = "";
+  jailpopInfo.innerHTML = "";
+  dorms.forEach(dorm => {
+    const btn = document.createElement("button");
+    btn.textContent = dorm;
+    btn.onclick = () => showPDL(annex, level, dorm);
+    dormContainer.appendChild(btn);
+  });
+}
 
-    if (results.length === 0) {
-      pdlList.innerHTML = `<p>No data for <strong>${annex} → ${level} → ${dorm}</strong></p>`;
-    } else {
-      const names = results.map(r => `<li>${r.Name}</li>`).join('');
-      pdlList.innerHTML = `
-        <h3>PDLs in ${annex} → ${level} → ${dorm}</h3>
-        <ul>${names}</ul>
-        <p><strong>Total PDLs:</strong> ${results.length}</p>
-        <button id="total-jailpop-btn">Total Jail Pop</button>
-      `;
+function showPDL(annex, level, dorm) {
+  const results = sheetData.filter(row =>
+    row.Annex === annex &&
+    row.Level === level &&
+    row.Dorm === dorm &&
+    row.Name
+  );
 
-      // Add click handler for "Total Jail Pop" button
-      document.getElementById("total-jailpop-btn").onclick = () => {
-        showTotalJailPop(annex, level);
-      };
-    }
-  }
-
-  // Show total PDL count for all dorms in annex + level + date/time
-  function showTotalJailPop(annex, level) {
-    const totalResults = sheetData.filter(row =>
-      row.Annex?.trim().toLowerCase() === annex.trim().toLowerCase() &&
-      row.Level?.trim().toLowerCase() === level.trim().toLowerCase() &&
-      row.Name
-    );
-    const totalCount = totalResults.length;
-
-    const now = new Date();
-    const dateTimeStr = now.toLocaleString();
-
-    jailpopInfo.innerHTML = `
-      <h3>Total Jail Pop for ${annex} → ${level}</h3>
-      <p><strong>Total PDLs:</strong> ${totalCount}</p>
-      <p><em>As of: ${dateTimeStr}</em></p>
+  if (results.length === 0) {
+    pdlList.innerHTML = `<p>No data for <strong>${annex} → ${level} → ${dorm}</strong></p>`;
+  } else {
+    const names = results.map(r => `<li>${r.Name}</li>`).join('');
+    pdlList.innerHTML = `
+      <h3>PDLs in ${annex} → ${level} → ${dorm}</h3>
+      <ul>${names}</ul>
+      <button onclick="showTotalJailPop('${annex}', '${level}')">Total Jail Pop</button>
     `;
   }
+  jailpopInfo.innerHTML = "";
+}
 
-  // JAIL POP button click — starts from annex selection but no levels/dorms yet
-  jailpopButton.onclick = () => {
-    pdlList.innerHTML = "";
-    jailpopInfo.innerHTML = "";
-    levelContainer.innerHTML = "";
-    dormContainer.innerHTML = "";
-    renderAnnexButtons();
-  };
+function showTotalJailPop(annex, level) {
+  const filtered = sheetData.filter(row =>
+    row.Annex === annex &&
+    row.Level === level &&
+    row.Name
+  );
+  const totalCount = filtered.length;
+  const now = new Date();
+  const dateTimeStr = now.toLocaleString();
 
-  // On page load, render annex buttons to begin normal browsing
+  jailpopInfo.innerHTML = `
+    <h3>Total Jail Pop for ${annex} → ${level}</h3>
+    <p><strong>Total PDLs:</strong> ${totalCount}</p>
+    <p><em>As of: ${dateTimeStr}</em></p>
+  `;
+}
+
+jailpopButton.onclick = () => {
+  pdlList.innerHTML = "";
+  jailpopInfo.innerHTML = "";
+  levelContainer.innerHTML = "";
+  dormContainer.innerHTML = "";
   renderAnnexButtons();
+};
+
+// Load annex buttons on page load
+renderAnnexButtons();
 </script>
 
 </body>
