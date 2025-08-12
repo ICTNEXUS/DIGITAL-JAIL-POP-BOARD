@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Jail Management System</title>
+<title>Jail Management System with Jail Pop</title>
 <style>
   body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -16,7 +16,7 @@
     text-align: center;
     color: #2c3e50;
   }
-  #annex-buttons, #level-buttons, #dorm-buttons {
+  #top-buttons, #annex-buttons, #level-buttons, #dorm-buttons {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
@@ -37,46 +37,43 @@
   button:hover {
     background-color: #2980b9;
   }
-  #annex-buttons button {
-    background-color: #2980b9;
+  #annex-buttons button { background-color: #2980b9; }
+  #annex-buttons button:hover { background-color: #1c5980; }
+  #level-buttons button { background-color: #27ae60; }
+  #level-buttons button:hover { background-color: #1e8449; }
+  #dorm-buttons button { background-color: #e67e22; }
+  #dorm-buttons button:hover { background-color: #b35917; }
+  #jailpop-button {
+    background-color: #c0392b;
+    margin-bottom: 20px;
   }
-  #annex-buttons button:hover {
-    background-color: #1c5980;
+  #jailpop-button:hover {
+    background-color: #82241f;
   }
-  #level-buttons button {
-    background-color: #27ae60;
-  }
-  #level-buttons button:hover {
-    background-color: #1e8449;
-  }
-  #dorm-buttons button {
-    background-color: #e67e22;
-  }
-  #dorm-buttons button:hover {
-    background-color: #b35917;
-  }
-  #pdl-list {
+  #pdl-list, #jailpop-info {
     background-color: white;
     max-width: 480px;
-    margin: 0 auto;
+    margin: 0 auto 30px auto;
     padding: 20px 25px;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    text-align: center;
   }
-  #pdl-list h3 {
+  #pdl-list h3, #jailpop-info h3 {
     margin-top: 0;
     color: #34495e;
   }
   #pdl-list ul {
     list-style-type: disc;
     padding-left: 20px;
+    text-align: left;
   }
-  #pdl-list p {
+  #pdl-list p, #jailpop-info p {
     font-style: italic;
     color: #999;
   }
   @media (max-width: 600px) {
-    #annex-buttons, #level-buttons, #dorm-buttons {
+    #annex-buttons, #level-buttons, #dorm-buttons, #top-buttons {
       justify-content: flex-start;
     }
     button {
@@ -86,17 +83,22 @@
   }
 </style>
 
-<!-- PapaParse CDN -->
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 </head>
 <body>
 
 <h1>Jail Management System</h1>
 
+<div id="top-buttons">
+  <button id="jailpop-button">JAIL POP</button>
+</div>
+
 <div id="annex-buttons"></div>
 <div id="level-buttons"></div>
 <div id="dorm-buttons"></div>
+
 <div id="pdl-list"></div>
+<div id="jailpop-info"></div>
 
 <script>
   const annexes = ["Annex 1", "Annex 2", "Annex 3", "Annex 4"];
@@ -107,11 +109,17 @@
   const levelContainer = document.getElementById("level-buttons");
   const dormContainer = document.getElementById("dorm-buttons");
   const pdlList = document.getElementById("pdl-list");
+  const jailpopInfo = document.getElementById("jailpop-info");
+
+  const jailpopButton = document.getElementById("jailpop-button");
 
   // Google Sheets CSV URL
   const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR2J7s7yqGIoQaEzo1gtdU6zIbs4ZJDzvzEJkVqY29Q743yoI4Ga2bfZB5IYBtb5y_pKYMfUmi4LR-g/pub?output=csv';
 
   let sheetData = [];
+  let selectedAnnex = null;
+  let selectedLevel = null;
+  let selectedDorm = null;
 
   // Fetch and parse CSV with PapaParse
   fetch(SHEET_URL)
@@ -127,13 +135,22 @@
       pdlList.innerHTML = `<p style="color:red;">Failed to load data. Please try again later.</p>`;
     });
 
-  // Show Annex Buttons
+  // Render annex buttons (used both for normal flow and jail pop)
   function renderAnnexButtons() {
     annexContainer.innerHTML = "";
+    levelContainer.innerHTML = "";
+    dormContainer.innerHTML = "";
+    pdlList.innerHTML = "";
+    jailpopInfo.innerHTML = "";
     annexes.forEach(annex => {
       const btn = document.createElement("button");
       btn.textContent = annex;
-      btn.onclick = () => showLevels(annex);
+      btn.onclick = () => {
+        selectedAnnex = annex;
+        selectedLevel = null;
+        selectedDorm = null;
+        showLevels(annex);
+      };
       annexContainer.appendChild(btn);
     });
   }
@@ -142,10 +159,15 @@
     levelContainer.innerHTML = "";
     dormContainer.innerHTML = "";
     pdlList.innerHTML = "";
+    jailpopInfo.innerHTML = "";
     levels.forEach(level => {
       const btn = document.createElement("button");
       btn.textContent = level;
-      btn.onclick = () => showDorms(annex, level);
+      btn.onclick = () => {
+        selectedLevel = level;
+        selectedDorm = null;
+        showDorms(annex, level);
+      };
       levelContainer.appendChild(btn);
     });
   }
@@ -153,15 +175,20 @@
   function showDorms(annex, level) {
     dormContainer.innerHTML = "";
     pdlList.innerHTML = "";
+    jailpopInfo.innerHTML = "";
     dorms.forEach(dorm => {
       const btn = document.createElement("button");
       btn.textContent = dorm;
-      btn.onclick = () => showPDL(annex, level, dorm);
+      btn.onclick = () => {
+        selectedDorm = dorm;
+        showPDL(annex, level, dorm);
+      };
       dormContainer.appendChild(btn);
     });
   }
 
   function showPDL(annex, level, dorm) {
+    jailpopInfo.innerHTML = "";
     const results = sheetData.filter(row =>
       row.Annex?.trim().toLowerCase() === annex.trim().toLowerCase() &&
       row.Level?.trim().toLowerCase() === level.trim().toLowerCase() &&
@@ -177,11 +204,45 @@
         <h3>PDLs in ${annex} → ${level} → ${dorm}</h3>
         <ul>${names}</ul>
         <p><strong>Total PDLs:</strong> ${results.length}</p>
+        <button id="total-jailpop-btn">Total Jail Pop</button>
       `;
+
+      // Add click handler for "Total Jail Pop" button
+      document.getElementById("total-jailpop-btn").onclick = () => {
+        showTotalJailPop(annex, level);
+      };
     }
   }
 
-  // Initial render
+  // Show total PDL count for all dorms in annex + level + date/time
+  function showTotalJailPop(annex, level) {
+    const totalResults = sheetData.filter(row =>
+      row.Annex?.trim().toLowerCase() === annex.trim().toLowerCase() &&
+      row.Level?.trim().toLowerCase() === level.trim().toLowerCase() &&
+      row.Name
+    );
+    const totalCount = totalResults.length;
+
+    const now = new Date();
+    const dateTimeStr = now.toLocaleString();
+
+    jailpopInfo.innerHTML = `
+      <h3>Total Jail Pop for ${annex} → ${level}</h3>
+      <p><strong>Total PDLs:</strong> ${totalCount}</p>
+      <p><em>As of: ${dateTimeStr}</em></p>
+    `;
+  }
+
+  // JAIL POP button click — starts from annex selection but no levels/dorms yet
+  jailpopButton.onclick = () => {
+    pdlList.innerHTML = "";
+    jailpopInfo.innerHTML = "";
+    levelContainer.innerHTML = "";
+    dormContainer.innerHTML = "";
+    renderAnnexButtons();
+  };
+
+  // On page load, render annex buttons to begin normal browsing
   renderAnnexButtons();
 </script>
 
